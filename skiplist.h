@@ -75,7 +75,7 @@ class skiplist {
     }
 
     // assignment operator
-  iterator& operator=(const iterator& other) {
+    iterator& operator=(const iterator& other) {
       if (other != *this) {
         mSkiplist = other.mSkiplist;
         mNode = other.mNode;
@@ -152,7 +152,7 @@ class skiplist {
     for (auto level = mHead.mRhs.size(); level; level--) {
       // drop down when no adjacent node exists
       while (n && n->mRhs[level - 1]) {
- auto keyIsLess = mCompare(key, n->mRhs[level - 1]->mKey);
+ 	auto keyIsLess = mCompare(key, n->mRhs[level - 1]->mKey);
         if (keyIsLess) break; // drop down
 
         auto nodeIsLess = mCompare(n->mRhs[level - 1]->mKey, key);
@@ -196,40 +196,6 @@ class skiplist {
   }
 
   size_type size() const {
-    size_type count = 0;
-    auto n = &mHead;
-    while (n = n->mRhs[0]) count++;
-    return count;
-  }
-
-  size_type max_size() const { return std::numeric_limits<int>::max(); }
-
-  bool empty() const { return mHead.mRhs[0] == NULL; }
-
-  compare_type key_comp() const { return mCompare; }
-
-  allocator_type get_allocator() const { return allocator_type(); }
-
- private:
-  // typedef for node alloator (as opposed to T allocator)
-  typedef typename A::template rebind<node_type>::other node_allocator;
-
-  node_allocator mNodeAllocator;
-  compare_type mCompare;
-  node_type mHead; // we never set or refer to the key
-
-  // static accessor
-  detail::pointers_to_node<A, node_type>& get_pointer_buffer() {
-    static detail::pointers_to_node<A, node_type> instance;
-    return instance;
-  }
-
-  void discoverLinksToUpdate(const T& key, size_t height = detail::MAX_HEIGHT)
-  {
-    // n node is the last node prior to the insert
-    auto n = &mHead;
-    for (auto level = height; level; level--) {
- size_type size() const {
     size_type count = 0;
     auto n = &mHead;
     while (n = n->mRhs[0]) count++;
