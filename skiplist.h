@@ -27,7 +27,9 @@ struct pointers_to_node {
   Node** mLhs;
 
   pointers_to_node() 
-      : srand(time(NULL)), mLhs(allocator().allocate(MAX_HEIGHT)) {}
+      : mLhs(allocator().allocate(MAX_HEIGHT)) {
+    srand(time(NULL));
+  }
 
   ~pointers_to_node() {
     allocator().deallocate(mLhs, MAX_HEIGHT);
@@ -136,9 +138,10 @@ class skiplist {
     mNodeAllocator.construct(newnode, key, height);
 
     // splice the new node into the list
+    auto lhs = get_pointer_buffer().mLhs;
     for (auto level = height; level; level--) {
-      newnode->mRhs[level - 1] = get_pointer_buffer().mLhs[level - 1];
-      get_pointer_buffer().mLhs[level - 1] = newnode;
+      newnode->mRhs[level - 1] = lhs[level - 1]->mRhs[level - 1];
+      lhs[level - 1]->mRhs[level - 1] = newnode;
     }
     return std::make_pair(iterator(this, newnode), true);
   }
@@ -150,7 +153,7 @@ class skiplist {
     for (auto level = mHead.mRhs.size(); level; level--) {
       // drop down when no adjacent node exists
       while (n && n->mRhs[level - 1]) {
- 	      auto keyIsLess = mCompare(key, n->mRhs[level - 1]->mKey);
+        auto keyIsLess = mCompare(key, n->mRhs[level - 1]->mKey);
         if (keyIsLess) break; // drop down
 
         auto nodeIsLess = mCompare(n->mRhs[level - 1]->mKey, key);
@@ -165,11 +168,12 @@ class skiplist {
   }
 
   iterator erase(const iterator position) {
-    discoverLinksToUpdate(*position);
+    discoverLinksToUpdate(*position, position.mNode->mRhs.size());
 
-    for (auto level = detail::MAX_HEIGHT; level; level--) {
-      if (!get_pointer_buffer().mPointers[level - 1]) continue;
-      get_pointer_buffer().mLhs[level - 1] = position.mNode->mRhs[level - 1];
+    auto lhs = get_pointer_buffer().mLhs;
+    for (auto level = position.mNode->mRhs.size(); level; level--) {
+      if (!lhs[level - 1]) continue;
+      lhs[level - 1]->mRhs[level - 1]  = position.mNode->mRhs[level - 1];
     }
 
     iterator next(this, position.mNode->mRhs[0]);
@@ -202,7 +206,7 @@ class skiplist {
 
   size_type max_size() const { return std::numeric_limits<int>::max(); }
 
-  bool empty() const { return mHead.mRhs[0] == NULL; }
+  bool empty() const { return NULL == mHead.mRhs[0]; }
 
   compare_type key_comp() const { return mCompare; }
 
@@ -222,7 +226,7 @@ class skiplist {
     return instance;
   }
 
-  void discoverLinksToUpdate(const T& key, size_t height = detail::MAX_HEIGHT)
+  void discoverLinksToUpdate(const T& key, size_t height)
   {
     // n node is the last node prior to the insert
     auto n = &mHead;

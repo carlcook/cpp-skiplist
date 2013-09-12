@@ -4,6 +4,9 @@
 
 #include "skiplist.h"
 
+// turn off debug statements
+#define printf 
+
 using namespace std;
 using namespace nonstd;
 
@@ -112,6 +115,11 @@ int main()
   auto allocator = myList.get_allocator();
 
   skiplist<MyDataItem> myList2(myList);
+
+  cout << "last element in copy is now: " << myList2[myList2.size() - 1].id << endl;
+
+  MyDataItem item4; item4.id = 4;
+  myList2.insert(item4);
 
   cout << "last element in copy is now: " << myList2[myList2.size() - 1].id << endl;
 }
