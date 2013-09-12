@@ -24,15 +24,13 @@ struct node {
 template <class A, class Node>
 struct pointers_to_node {
   typedef typename A::template rebind<Node*>::other allocator;
-  Node*** mPointers;
+  Node** mLhs;
 
-  pointers_to_node() {
-    srand(time(NULL));
-    mPointers = reinterpret_cast<Node***>(allocator().allocate(MAX_HEIGHT));
-  }
+  pointers_to_node() 
+      : srand(time(NULL)), mLhs(allocator().allocate(MAX_HEIGHT)) {}
 
   ~pointers_to_node() {
-    allocator().deallocate(reinterpret_cast<Node**>(mPointers), MAX_HEIGHT);
+    allocator().deallocate(mLhs, MAX_HEIGHT);
   }
 };
 
@@ -139,8 +137,8 @@ class skiplist {
 
     // splice the new node into the list
     for (auto level = height; level; level--) {
-      newnode->mRhs[level - 1] = *get_pointer_buffer().mPointers[level - 1];
-      *get_pointer_buffer().mPointers[level - 1] = newnode;
+      newnode->mRhs[level - 1] = get_pointer_buffer().mLhs[level - 1];
+      get_pointer_buffer().mLhs[level - 1] = newnode;
     }
     return std::make_pair(iterator(this, newnode), true);
   }
@@ -152,7 +150,7 @@ class skiplist {
     for (auto level = mHead.mRhs.size(); level; level--) {
       // drop down when no adjacent node exists
       while (n && n->mRhs[level - 1]) {
- 	auto keyIsLess = mCompare(key, n->mRhs[level - 1]->mKey);
+ 	      auto keyIsLess = mCompare(key, n->mRhs[level - 1]->mKey);
         if (keyIsLess) break; // drop down
 
         auto nodeIsLess = mCompare(n->mRhs[level - 1]->mKey, key);
@@ -171,7 +169,7 @@ class skiplist {
 
     for (auto level = detail::MAX_HEIGHT; level; level--) {
       if (!get_pointer_buffer().mPointers[level - 1]) continue;
-      *get_pointer_buffer().mPointers[level - 1] = position.mNode->mRhs[level - 1];
+      get_pointer_buffer().mLhs[level - 1] = position.mNode->mRhs[level - 1];
     }
 
     iterator next(this, position.mNode->mRhs[0]);
@@ -231,10 +229,10 @@ class skiplist {
     for (auto level = height; level; level--) {
       // walk as far to the right as we can
       while (n->mRhs[level - 1] && mCompare(n->mRhs[level - 1]->mKey, key))
-               n = n->mRhs[level - 1];
+        n = n->mRhs[level - 1];
 
-      // record the location of the link
-      get_pointer_buffer().mPointers[level - 1] = &n->mRhs[level - 1];
+      // record the location of the previous link
+      get_pointer_buffer().mLhs[level - 1] = n;
     }
   }
 };
