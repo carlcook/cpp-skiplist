@@ -13,31 +13,26 @@ using namespace nonstd;
 class MyDataItem
 {
   public:
-    MyDataItem()
-    {
+    MyDataItem() {
       mData = new int[10];
       printf("Got created\n");
     }
 
-    MyDataItem(MyDataItem&& other)
-    {
+    MyDataItem(MyDataItem&& other) {
       mData = other.mData;
       id = other.id;
       other.mData = NULL;
       printf("Got moved\n");
     }
 
-    MyDataItem(const MyDataItem& other)
-    {
+    MyDataItem(const MyDataItem& other) {
       mData = new int(10);
       id = other.id;
       printf("Got copy constructed\n");
     }
 
-    MyDataItem& operator=(const MyDataItem& other)
-    {
-      if (this != &other)
-      {
+    MyDataItem& operator=(const MyDataItem& other) {
+      if (this != &other) {
         int* newData = new int[10];
         std::copy(other.mData, other.mData + 10, newData);
 
@@ -50,10 +45,8 @@ class MyDataItem
       return *this;
     }
 
-    MyDataItem& operator=(MyDataItem&& other)
-    {
-      if (this != &other)
-      {
+    MyDataItem& operator=(MyDataItem&& other) {
+      if (this != &other) {
         delete [] mData;
         mData = other.mData;
         id = other.id;
@@ -63,14 +56,12 @@ class MyDataItem
       return *this;
     }
 
-    ~MyDataItem()
-    {
+    ~MyDataItem() {
       delete mData;
       mData = NULL;
     }
 
-    bool operator< (const MyDataItem& other) const
-    {
+    bool operator< (const MyDataItem& other) const {
       printf("comparing %d and %d\n", id, other.id);
       return id < other.id;
     }
@@ -81,8 +72,7 @@ class MyDataItem
  int* mData;
 };
 
-int main()
-{
+int main() {
   skiplist<MyDataItem> myList;
   MyDataItem item1; item1.id = 1;
   MyDataItem item2; item2.id = 2;
