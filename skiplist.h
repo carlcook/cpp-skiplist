@@ -128,11 +128,24 @@ class skiplist {
    friend class skiplist;
   };
 
-  skiplist() : mHead(T(), detail::MAX_HEIGHT) {}
+  skiplist(const compare_type& compare = compare_type()) : mHead(T(), detail::MAX_HEIGHT), mCompare(compare) {}
+
+  // TODO just the allocator as an argument to a constructor
 
   skiplist(const skiplist& other) : mHead(T(), detail::MAX_HEIGHT) {
+    // take a copy (not copying network of other skiplist)
     for (auto it = other.begin(); it != other.end(); ++it) insert(*it);
   }
+
+  // TODO initialization list ctor
+
+  // TODO move ctor
+
+  // TODO move assignment operator
+
+  // TODO regular assignment operator
+
+  // TODO initializer list assignment operator
 
   ~skiplist() { clear(); }
 
@@ -209,7 +222,7 @@ class skiplist {
 
   void clear() {
     auto it = begin();
-    while ((it = erase(it)) != end());
+    while (it != end()) it = erase(it);
   }
 
   size_type size() const {
@@ -270,6 +283,8 @@ void swap(skiplist<T>& lhs, skiplist<T>& rhs) {
 
 }
 
+// TODO handle ostream iteration (does this work with std set?)
+// TODO should iterator also be const.... i.e. is this basically a set not a list?
 // TODO add comments - doxygen maybe?
 // TODO initialisation list constructor
 // TODO don't use a vector - use something better?

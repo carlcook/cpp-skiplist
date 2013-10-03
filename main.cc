@@ -1,6 +1,9 @@
 #include <stdio.h>
 
 #include <iostream>
+#include <iterator>
+#include <vector>
+#include <functional>
 
 #include "skiplist.h"
 
@@ -62,8 +65,13 @@ class MyDataItem
     }
 
     bool operator< (const MyDataItem& other) const {
-      printf("comparing %d and %d\n", id, other.id);
+      printf("comparing less %d and %d\n", id, other.id);
       return id < other.id;
+    }
+
+    bool operator> (const MyDataItem& other) const {
+      printf("comparing greater %d and %d\n", id, other.id);
+      return id > other.id;
     }
 
     int id;
@@ -73,7 +81,10 @@ class MyDataItem
 };
 
 int main() {
-  skiplist<MyDataItem> myList;
+
+  less<MyDataItem> myLess;
+  skiplist<MyDataItem> myList(myLess);
+
   MyDataItem item1; item1.id = 1;
   MyDataItem item2; item2.id = 2;
   MyDataItem item3; item3.id = 3;
@@ -86,17 +97,13 @@ int main() {
   cout << it->id << endl;
   cout << (*it).id << endl;
 
-  for (auto it2 = myList.begin(); it2 != myList.end(); ++it2)
-  {
-    cout << it2->id << endl;
-  }
+  for (auto it2 = myList.begin(); it2 != myList.end(); ++it2)  
+    cout << it2->id << endl;  
 
   cout << "next should be three after deleting two: " << myList.erase(it)->id << endl;
 
-  for (auto it2 = myList.begin(); it2 != myList.end(); ++it2)
-  {
-    cout << it2->id << endl;
-  }
+  for (auto it2 = myList.begin(); it2 != myList.end(); ++it2)  
+    cout << it2->id << endl;  
 
   cout << "size is now: " << myList.size() << endl;
 
@@ -108,6 +115,16 @@ int main() {
 
   cout << "last element in copy is now: " << myList2[myList2.size() - 1].id << endl;
 
+  // greater
+  greater<MyDataItem> myGreater;
+  skiplist<MyDataItem, greater<MyDataItem>> myList3(myGreater);
+  myList3.insert(item1);
+  myList3.insert(item3);
+  myList3.insert(item2);
+  for (auto it = myList3.begin(); it != myList3.end(); ++it)
+    cout << it->id << endl;
+
+
   MyDataItem item4; item4.id = 4;
   myList2.insert(item4);
 
@@ -118,4 +135,5 @@ int main() {
   swap(myList, myList2);
 
   cout << "first list now contains " << myList.size() << " elements" << endl;
+  
 }
