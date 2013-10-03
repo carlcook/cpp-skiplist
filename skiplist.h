@@ -8,15 +8,21 @@
 
 namespace nonstd {
 
+// internal to the skiplist
 namespace detail {
 
+// the max height that the skiplist can be
 const size_t MAX_HEIGHT = 10;
 
 // internal representation of a node within a skiplist
 template <class Key, class Allocator>
 struct node {
+  // the key itself
   const Key mKey;
+
+  // the neighbour to the right of this node, at every level
   std::vector<node*, Allocator> mRhs;
+
   node(const Key& key, size_t height) : mKey(key), mRhs(height) {}
 };
 
@@ -24,11 +30,13 @@ struct node {
 template <class A, class Node>
 struct pointers_to_node {
   typedef typename A::template rebind<Node*>::other allocator;
+
+  // all the nodes to the left of the target node
   Node** mLhs;
 
   pointers_to_node() 
       : mLhs(allocator().allocate(MAX_HEIGHT)) {
-    srand(time(NULL));
+    srand(time(nullptr));
   }
 
   ~pointers_to_node() {
@@ -63,15 +71,15 @@ class skiplist {
     typedef typename allocator_type::const_pointer const_pointer;
 
     // standard says the iterator must be default constructable
-    iterator() : mSkiplist(NULL), mNode(NULL) {}
+    iterator() : mSkiplist(nullptr), mNode(nullptr) {}
 
     // copy constructor
     iterator(const iterator& other)
         : mSkiplist(other.mSkiplist), mNode(other.mNode) {}
 
     ~iterator() {
-      mSkiplist = NULL;
-      mNode = NULL;
+      mSkiplist = nullptr;
+      mNode = nullptr;
     }
 
     // assignment operator
@@ -107,11 +115,14 @@ class skiplist {
     const_pointer operator->() const { return &mNode->mKey; }
 
    private:
+    // the owning skiplist
     const skiplist* mSkiplist;
+
+    // pointer to the node under iteration
     node_type* mNode;
 
     // set pointer to head of list (excluding the default node)
-    iterator(const skiplist* skiplist, node_type* node = NULL)
+    iterator(const skiplist* skiplist, node_type* node = nullptr)
         : mSkiplist(skiplist), mNode(node) {}
 
    friend class skiplist;
@@ -164,7 +175,7 @@ class skiplist {
         return iterator(this, n->mRhs[level - 1]);
       }
     }
-    return iterator(this, NULL); // not found
+    return iterator(this, nullptr); // not found
   }
 
   iterator erase(const iterator position) {
@@ -184,13 +195,17 @@ class skiplist {
 
   iterator begin() const { return iterator(this, mHead.mRhs[0]); }
 
-  iterator end() const { return iterator(this, NULL); }
+  // the end is represented by a null node under iteration
+  iterator end() const { return iterator(this, nullptr); }
 
+  // TODO this isn't really random access just yet ;)
   const_reference operator[](size_type position) const {
     auto n = mHead.mRhs[0];
     while (position-- > 0) n = n->mRhs[0];
     return n->mKey;
   }
+
+  void swap(skiplist& other) { std::swap(mHead.mRhs, other.mHead.mRhs); }
 
   void clear() {
     auto it = begin();
@@ -204,9 +219,10 @@ class skiplist {
     return count;
   }
 
+  // no limitations as such
   size_type max_size() const { return std::numeric_limits<int>::max(); }
 
-  bool empty() const { return NULL == mHead.mRhs[0]; }
+  bool empty() const { return nullptr == mHead.mRhs[0]; }
 
   compare_type key_comp() const { return mCompare; }
 
@@ -216,16 +232,22 @@ class skiplist {
   // typedef for node alloator (as opposed to T allocator)
   typedef typename A::template rebind<node_type>::other node_allocator;
 
+  // the supplied allocator
   node_allocator mNodeAllocator;
-  compare_type mCompare;
-  node_type mHead; // we never set or refer to the key
 
-  // static accessor
+  // the supplied comparison object
+  compare_type mCompare;
+
+  // the initial node, which is a dummy entry in that it has no key
+  node_type mHead;
+
+  // static accessor to a useful buffer
   detail::pointers_to_node<A, node_type>& get_pointer_buffer() {
     static detail::pointers_to_node<A, node_type> instance;
     return instance;
   }
 
+  // useful for inserts and deletes
   void discoverLinksToUpdate(const T& key, size_t height)
   {
     // n node is the last node prior to the insert
@@ -241,14 +263,14 @@ class skiplist {
   }
 };
 
-template <class T, class Compare = std::less<T>, class A = std::allocator<T>>
-void swap(skiplist<T,A>&, skiplist<T,A>&) {
-  // TODO
+template <class T>
+void swap(skiplist<T>& lhs, skiplist<T>& rhs) {
+  lhs.swap(rhs);
 }
 
 }
 
-// TODO clean up this code
+// TODO add comments - doxygen maybe?
 // TODO initialisation list constructor
 // TODO don't use a vector - use something better?
 // TODO better randomisation (smarter - more balanced?), or even a rotating list?
@@ -261,7 +283,6 @@ void swap(skiplist<T,A>&, skiplist<T,A>&) {
 // TODO C++0x move constructors, move semantics on insert, etc
 // TODO random access iterators
 // TODO const iterators (and then update find/erase methods)
-// TODO swap
 // TODO copy constructors etc
 // TODO insert with range
 // TODO emplace
@@ -269,7 +290,7 @@ void swap(skiplist<T,A>&, skiplist<T,A>&) {
 // TODO other set methods such as upper/lower bound, etc
 // TODO make fast as possible
 // TODO consider conn access version/support?
-// TODO unit tests for this
+// TODO unit tests for this - gtest, or just casserts?
 // TODO other overloaded methods such as value based erasure, etc
 // TODO can use allocator_traits in a later version of g++
 // TODO support for front and back?

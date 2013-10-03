@@ -112,4 +112,10 @@ int main() {
   myList2.insert(item4);
 
   cout << "last element in copy is now: " << myList2[myList2.size() - 1].id << endl;
+
+  cout << "first list now contains " << myList.size() << " elements" << endl;
+
+  swap(myList, myList2);
+
+  cout << "first list now contains " << myList.size() << " elements" << endl;
 }
