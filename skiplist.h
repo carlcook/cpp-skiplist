@@ -63,12 +63,17 @@ class skiplist {
   typedef typename allocator_type::const_reference const_reference;
 
   // this is a forward iterator (only)
+  // TODO just make this a const iterator
   class iterator {
    public:
     typedef std::forward_iterator_tag iterator_category;
     typedef typename allocator_type::value_type value_type;
     typedef typename allocator_type::const_reference const_reference;
     typedef typename allocator_type::const_pointer const_pointer;
+
+    typedef typename allocator_type::reference reference;
+    typedef typename allocator_type::pointer pointer;
+    typedef typename allocator_type::difference_type difference_type;
 
     // standard says the iterator must be default constructable
     iterator() : mSkiplist(nullptr), mNode(nullptr) {}
@@ -283,12 +288,9 @@ void swap(skiplist<T>& lhs, skiplist<T>& rhs) {
 
 }
 
-// TODO handle ostream iteration (does this work with std set?)
 // TODO should iterator also be const.... i.e. is this basically a set not a list?
 // TODO add comments - doxygen maybe?
 // TODO initialisation list constructor
-// TODO don't use a vector - use something better?
-// TODO better randomisation (smarter - more balanced?), or even a rotating list?
 // TODO allow duplicates, optionally, as a template argument
 // TODO profiler guided optimisation then branch prediction hints
 // TODO pass in a custom allocator which is better?

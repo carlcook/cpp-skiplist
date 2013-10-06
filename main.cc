@@ -4,6 +4,7 @@
 #include <iterator>
 #include <vector>
 #include <functional>
+#include <set>
 
 #include "skiplist.h"
 
@@ -74,6 +75,10 @@ class MyDataItem
       return id > other.id;
     }
 
+    friend ostream& operator<< (ostream& os, const MyDataItem& myDataItem) {
+      return os << myDataItem.id;
+    }
+
     int id;
 
   private:
@@ -124,6 +129,13 @@ int main() {
   for (auto it = myList3.begin(); it != myList3.end(); ++it)
     cout << it->id << endl;
 
+  skiplist<MyDataItem> myList6;
+
+  myList6.insert(item1);
+  myList6.insert(item2);
+  myList6.insert(item3);
+  copy(myList6.begin(), myList6.end(), ostream_iterator<MyDataItem>(cout, " "));
+  cout << endl;
 
   MyDataItem item4; item4.id = 4;
   myList2.insert(item4);
@@ -135,5 +147,7 @@ int main() {
   swap(myList, myList2);
 
   cout << "first list now contains " << myList.size() << " elements" << endl;
+
+  // TODO write a speed test that creates a random set of operatios, and then applies this to the skip list as well as std set
   
 }
