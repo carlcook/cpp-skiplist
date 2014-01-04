@@ -44,7 +44,7 @@ class MyDataItem
 
         mData = newData;
         id = other.id;
-        printf("Got assigned\n");
+        printf("Got assigned.\n");
       }
       return *this;
     }
