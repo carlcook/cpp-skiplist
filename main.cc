@@ -32,7 +32,7 @@ class MyDataItem
     MyDataItem(const MyDataItem& other) {
       mData = new int(10);
       id = other.id;
-      printf("Got copy constructed\n");
+      printf("Got copy constructed.\n");
     }
 
     MyDataItem& operator=(const MyDataItem& other) {
